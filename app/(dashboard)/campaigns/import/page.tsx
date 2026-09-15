@@ -15,8 +15,8 @@ import { parseCsv } from "@/lib/utils/csv";
 import { IMPORT_QUEUE_KEY, IMPORT_ACCOUNT_KEY } from "@/lib/import-queue";
 
 const SAMPLE = `keywords,dm_message,public_reply,tracked_url,opening_dm,opening_dm_button
-"yc","here it is: {link}","sent. check dms","https://events.ycombinator.com/startup-school-2026","hey! click below for the referral","send link"
-"LINK,SHOP","grab it here: {link}","dmed u",,,`;
+"quero","Aqui está: {link}","Te mandei no direct!","https://seulink.com.br/oferta","Oi! Toque abaixo para receber o link","Quero o link"
+"LINK,TABELA","Segue o link: {link}","Enviado por DM",,,`;
 
 export default function ImportCampaignsPage() {
   const router = useRouter();
@@ -42,7 +42,7 @@ export default function ImportCampaignsPage() {
     setError(null);
     const parsed = parseCsv(csv);
     if (parsed.length === 0) {
-      setError("Paste a CSV with a header row and at least one campaign.");
+      setError("Cole um CSV com a linha de cabeçalho e pelo menos uma campanha.");
       return;
     }
 
@@ -56,7 +56,7 @@ export default function ImportCampaignsPage() {
         .slice(0, 10);
       const dmMessage = (r.dm_message ?? r.message ?? "").trim();
       if (keywords.length === 0 || !dmMessage) {
-        setError(`Row ${i + 1} is missing keywords or a message.`);
+        setError(`A linha ${i + 1} está sem palavras-chave ou sem mensagem.`);
         return;
       }
       rows.push({
@@ -85,21 +85,21 @@ export default function ImportCampaignsPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-lg font-semibold">Import campaigns</h1>
+        <h1 className="text-lg font-semibold">Importar campanhas</h1>
         <p className="text-sm text-muted mt-1">
-          Paste a CSV with one row per campaign. Each row opens in the builder
-          prefilled and editable, so you can review it and pick the reel before
-          saving. Required columns are{" "}
-          <code className="text-accent">keywords</code> and{" "}
-          <code className="text-accent">dm_message</code>. Optional:{" "}
+          Cole um CSV com uma linha por campanha. Cada linha abre no construtor já
+          preenchida e editável, para você revisar e escolher o reel antes de
+          salvar. As colunas obrigatórias são{" "}
+          <code className="text-accent">keywords</code> e{" "}
+          <code className="text-accent">dm_message</code>. Opcionais:{" "}
           <code className="text-accent">name</code>,{" "}
           <code className="text-accent">public_reply</code>,{" "}
           <code className="text-accent">tracked_url</code>,{" "}
           <code className="text-accent">opening_dm</code>,{" "}
-          <code className="text-accent">opening_dm_button</code>. Keywords go in
-          one cell, separated by commas. Use{" "}
-          <code className="text-accent">{"{link}"}</code> in the message to
-          insert the tracked link.
+          <code className="text-accent">opening_dm_button</code>. As palavras-chave vão
+          em uma célula só, separadas por vírgula. Use{" "}
+          <code className="text-accent">{"{link}"}</code> na mensagem para
+          inserir o link rastreado.
         </p>
       </div>
 
@@ -112,14 +112,14 @@ export default function ImportCampaignsPage() {
       {accounts.length > 1 && (
         <div className="space-y-2">
           <label className="block text-sm font-medium text-foreground">
-            Instagram account
+            Conta do Instagram
           </label>
           <AccountSelect
             accounts={accounts}
             value={selectedAccountId}
             onChange={setSelectedAccountId}
             includeAll={false}
-            label="Account"
+            label="Conta"
           />
         </div>
       )}
@@ -138,7 +138,7 @@ export default function ImportCampaignsPage() {
           onClick={() => setCsv(SAMPLE)}
           className="text-xs text-muted hover:text-foreground"
         >
-          Fill with a sample
+          Preencher com exemplo
         </button>
       </div>
 
@@ -147,13 +147,13 @@ export default function ImportCampaignsPage() {
           onClick={startImport}
           className="px-5 py-2 rounded bg-accent text-sm font-medium text-white hover:bg-accent-hover"
         >
-          Review and import
+          Revisar e importar
         </button>
         <button
           onClick={() => router.push("/campaigns")}
           className="px-5 py-2 rounded text-sm text-muted hover:text-foreground border border-border"
         >
-          Cancel
+          Cancelar
         </button>
       </div>
     </div>

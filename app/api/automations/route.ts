@@ -10,6 +10,9 @@ import {
   canManageWorkspace,
   getCurrentWorkspaceContext,
 } from "@/lib/workspace-access";
+import {
+  DEFAULT_LINK_BUTTON_LABEL,
+} from "@/lib/messages/defaults";
 
 // This list is read-your-writes (created/imported campaigns must show up
 // immediately), so never cache it at the route or CDN layer.
@@ -125,7 +128,7 @@ export async function GET(request: NextRequest) {
   const workspaceId = await getCurrentWorkspaceId();
   if (!workspaceId) {
     return NextResponse.json(
-      { success: false, error: "Unauthorized" },
+      { success: false, error: "Não autorizado" },
       { status: 401 }
     );
   }
@@ -279,14 +282,14 @@ export async function POST(request: NextRequest) {
   const context = await getCurrentWorkspaceContext();
   if (!context) {
     return NextResponse.json(
-      { success: false, error: "Unauthorized" },
+      { success: false, error: "Não autorizado" },
       { status: 401 }
     );
   }
 
   if (!canManageWorkspace(context.role)) {
     return NextResponse.json(
-      { success: false, error: "Only owners and admins can create campaigns" },
+      { success: false, error: "Só donos e administradores podem criar campanhas" },
       { status: 403 }
     );
   }
@@ -300,7 +303,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: "Invalid input",
+        error: "Dados inválidos",
         details: parsed.error.flatten(),
       },
       { status: 400 }
@@ -329,14 +332,14 @@ export async function POST(request: NextRequest) {
 
   if (!workspace) {
     return NextResponse.json(
-      { success: false, error: "Workspace not found" },
+      { success: false, error: "Workspace não encontrado" },
       { status: 404 }
     );
   }
 
   if (!instagramAccount) {
     return NextResponse.json(
-      { success: false, error: "Connect Instagram before creating campaigns" },
+      { success: false, error: "Conecte o Instagram antes de criar campanhas" },
       { status: 400 }
     );
   }
@@ -364,7 +367,7 @@ export async function POST(request: NextRequest) {
     linkCreates.push({
       workspaceId,
       slug: generateTrackedLinkSlug(),
-      label: secondaryButtonLabel?.trim() || "Open link",
+      label: secondaryButtonLabel?.trim() || DEFAULT_LINK_BUTTON_LABEL,
       destinationUrl: secondaryDestinationUrl,
     });
   }
@@ -449,14 +452,14 @@ export async function PATCH(request: NextRequest) {
   const context = await getCurrentWorkspaceContext();
   if (!context) {
     return NextResponse.json(
-      { success: false, error: "Unauthorized" },
+      { success: false, error: "Não autorizado" },
       { status: 401 }
     );
   }
 
   if (!canManageWorkspace(context.role)) {
     return NextResponse.json(
-      { success: false, error: "Only owners and admins can update campaigns" },
+      { success: false, error: "Só donos e administradores podem editar campanhas" },
       { status: 403 }
     );
   }
@@ -466,7 +469,7 @@ export async function PATCH(request: NextRequest) {
   const automationId = request.nextUrl.searchParams.get("id");
   if (!automationId) {
     return NextResponse.json(
-      { success: false, error: "Missing campaign ID" },
+      { success: false, error: "ID da campanha não informado" },
       { status: 400 }
     );
   }
@@ -478,7 +481,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: "Invalid input",
+        error: "Dados inválidos",
         details: parsed.error.flatten(),
       },
       { status: 400 }
@@ -491,7 +494,7 @@ export async function PATCH(request: NextRequest) {
 
   if (!existing) {
     return NextResponse.json(
-      { success: false, error: "Campaign not found" },
+      { success: false, error: "Campanha não encontrada" },
       { status: 404 }
     );
   }
@@ -580,7 +583,7 @@ export async function PATCH(request: NextRequest) {
       orderBy: { createdAt: "asc" },
     });
     const secondaryLink = links[1];
-    const secondaryLabel = secondaryButtonLabel?.trim() || "Open link";
+    const secondaryLabel = secondaryButtonLabel?.trim() || DEFAULT_LINK_BUTTON_LABEL;
 
     if (secondaryDestinationUrl === "") {
       if (secondaryLink) {
@@ -611,14 +614,14 @@ export async function DELETE(request: NextRequest) {
   const context = await getCurrentWorkspaceContext();
   if (!context) {
     return NextResponse.json(
-      { success: false, error: "Unauthorized" },
+      { success: false, error: "Não autorizado" },
       { status: 401 }
     );
   }
 
   if (!canManageWorkspace(context.role)) {
     return NextResponse.json(
-      { success: false, error: "Only owners and admins can delete campaigns" },
+      { success: false, error: "Só donos e administradores podem excluir campanhas" },
       { status: 403 }
     );
   }
@@ -628,7 +631,7 @@ export async function DELETE(request: NextRequest) {
   const automationId = request.nextUrl.searchParams.get("id");
   if (!automationId) {
     return NextResponse.json(
-      { success: false, error: "Missing campaign ID" },
+      { success: false, error: "ID da campanha não informado" },
       { status: 400 }
     );
   }
@@ -639,7 +642,7 @@ export async function DELETE(request: NextRequest) {
 
   if (!existing) {
     return NextResponse.json(
-      { success: false, error: "Campaign not found" },
+      { success: false, error: "Campanha não encontrada" },
       { status: 404 }
     );
   }

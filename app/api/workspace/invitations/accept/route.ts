@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id || !session.user.email) {
     return NextResponse.json(
-      { success: false, error: "Sign in with the invited email first" },
+      { success: false, error: "Entre primeiro com o email convidado" },
       { status: 401 }
     );
   }
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
   const token = typeof body.token === "string" ? body.token : null;
   if (!token) {
     return NextResponse.json(
-      { success: false, error: "Missing invitation token" },
+      { success: false, error: "Token do convite não informado" },
       { status: 400 }
     );
   }
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
   });
   if (!invitation || invitation.status !== "PENDING") {
     return NextResponse.json(
-      { success: false, error: "Invitation is no longer available" },
+      { success: false, error: "Este convite não está mais disponível" },
       { status: 404 }
     );
   }
@@ -38,14 +38,14 @@ export async function POST(request: NextRequest) {
       data: { status: "EXPIRED" },
     });
     return NextResponse.json(
-      { success: false, error: "Invitation has expired" },
+      { success: false, error: "O convite expirou" },
       { status: 410 }
     );
   }
 
   if (normalizeInvitationEmail(session.user.email) !== invitation.email) {
     return NextResponse.json(
-      { success: false, error: "This invitation is for a different email" },
+      { success: false, error: "Este convite é para outro email" },
       { status: 403 }
     );
   }

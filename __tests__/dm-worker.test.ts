@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { DEFAULT_FOLLOW_BUTTON_LABEL } from "@/lib/messages/defaults";
 
 const {
   mockPrisma,
@@ -1081,7 +1082,7 @@ describe("DM Worker — DM keyword trigger", () => {
       "ig_456",
       "commenter_999",
       expect.any(String),
-      "I'm following ✅",
+      DEFAULT_FOLLOW_BUTTON_LABEL,
       "followcheck:auto_789"
     );
     expect(mockSendDirectMessage).not.toHaveBeenCalled();

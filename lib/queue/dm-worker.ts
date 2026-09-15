@@ -48,6 +48,13 @@ import {
   ZernioApiError,
   ZernioDeliveryUnconfirmedError,
 } from "@/lib/zernio/client";
+import {
+  DEFAULT_FOLLOW_BUTTON_LABEL,
+  DEFAULT_FOLLOW_PROMPT_MESSAGE,
+  DEFAULT_FOLLOW_REMINDER_MESSAGE,
+  DEFAULT_LINK_BUTTON_LABEL,
+  DEFAULT_LINK_INTRO,
+} from "@/lib/messages/defaults";
 
 const BACKOFF_DELAYS = [5 * 60 * 1000, 15 * 60 * 1000, 45 * 60 * 1000];
 
@@ -102,7 +109,7 @@ function buildLinkButtons(
   return trackedLinks.slice(0, 3).map((link, index) => ({
     url: buildTrackedUrl(link.slug),
     title:
-      (index === 0 ? primaryLabel : link.label) || link.label || "Open link",
+      (index === 0 ? primaryLabel : link.label) || link.label || DEFAULT_LINK_BUTTON_LABEL,
   }));
 }
 
@@ -170,7 +177,7 @@ async function sendRevealDirectMessage({
     renderMessageWithoutLink({
       message: automation.dmMessage,
       commenterName,
-    }) || "Here's your link:";
+    }) || DEFAULT_LINK_INTRO;
   const buttons = buildLinkButtons(
     automation.trackedLinks,
     automation.linkButtonLabel
@@ -621,7 +628,7 @@ async function processComment(job: Job<ProcessCommentJob>): Promise<void> {
         const promptText = renderMessageWithoutLink({
           message:
             automation.followPromptMessage ||
-            "quick favor before i send your link. i don't make any money from this, it's free. if you want to support me, just don't unfollow after, and star the repo on github if it helps you. tap the button once you're following and i'll send it over",
+            DEFAULT_FOLLOW_PROMPT_MESSAGE,
           commenterName,
         });
         await sendPrivateReplyWithButton({
@@ -629,7 +636,7 @@ async function processComment(job: Job<ProcessCommentJob>): Promise<void> {
           instagramAccountId: automation.instagramAccount.instagramId,
           commentId: commentId,
           text: promptText,
-          buttonTitle: automation.followPromptButtonLabel || "i'm following",
+          buttonTitle: automation.followPromptButtonLabel || DEFAULT_FOLLOW_BUTTON_LABEL,
           payload: `followcheck:${automation.id}`,
           postId: mediaId,
         });
@@ -639,7 +646,7 @@ async function processComment(job: Job<ProcessCommentJob>): Promise<void> {
           renderMessageWithoutLink({
             message: automation.dmMessage,
             commenterName,
-          }) || "Here's your link:";
+          }) || DEFAULT_LINK_INTRO;
         const buttons = buildLinkButtons(
           automation.trackedLinks,
           automation.linkButtonLabel
@@ -888,7 +895,7 @@ async function processPostback(job: Job<ProcessPostbackJob>): Promise<void> {
       const promptText = renderMessageWithoutLink({
         message:
           automation.followPromptMessage ||
-          "quick favor before i send your link. i don't make any money from this, it's free. if you want to support me, just don't unfollow after, and star the repo on github if it helps you. tap the button once you're following and i'll send it over",
+          DEFAULT_FOLLOW_PROMPT_MESSAGE,
         commenterName,
       });
       try {
@@ -901,7 +908,7 @@ async function processPostback(job: Job<ProcessPostbackJob>): Promise<void> {
               userId: userId,
               text: promptText,
               buttonTitle:
-                automation.followPromptButtonLabel || "i'm following",
+                automation.followPromptButtonLabel || DEFAULT_FOLLOW_BUTTON_LABEL,
               payload: `followcheck:${automation.id}`,
             }),
         });
@@ -1275,7 +1282,7 @@ async function processMessage(job: Job<ProcessMessageJob>): Promise<void> {
         const promptText = renderMessageWithoutLink({
           message:
             automation.followPromptMessage ||
-            "Almost there! Follow me and tap the button below to grab your link 💛",
+            DEFAULT_FOLLOW_REMINDER_MESSAGE,
           commenterName,
         });
         await sendDirectMessageWithButton({
@@ -1283,7 +1290,7 @@ async function processMessage(job: Job<ProcessMessageJob>): Promise<void> {
           instagramAccountId: automation.instagramAccount.instagramId,
           userId: senderId,
           text: promptText,
-          buttonTitle: automation.followPromptButtonLabel || "I'm following ✅",
+          buttonTitle: automation.followPromptButtonLabel || DEFAULT_FOLLOW_BUTTON_LABEL,
           payload: `followcheck:${automation.id}`,
         });
       } else {

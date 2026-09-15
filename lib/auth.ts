@@ -20,14 +20,68 @@ const smtpServer = process.env.EMAIL_SERVER;
  */
 export const EMAIL_PROVIDER_ID = smtpServer ? "nodemailer" : "resend";
 
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`);
+}
+
+function magicLinkEmail(url: string, host: string) {
+  const safeUrl = escapeHtml(url);
+  const safeHost = escapeHtml(host);
+  return {
+    subject: `Seu link de acesso ao OpenReply`,
+    text: `Acesse o OpenReply (${host}) pelo link abaixo:\n\n${url}\n\nSe você não pediu este email, pode ignorá-lo.\n`,
+    html: `<body style="background:#f4f4f5;margin:0;padding:24px;font-family:Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:12px;padding:32px;">
+    <tr><td style="font-size:20px;font-weight:600;color:#18181b;padding-bottom:12px;">Entrar no OpenReply</td></tr>
+    <tr><td style="font-size:14px;color:#3f3f46;padding-bottom:24px;">Clique no botão abaixo para acessar o painel em <strong>${safeHost}</strong>.</td></tr>
+    <tr><td style="padding-bottom:24px;"><a href="${safeUrl}" target="_blank" style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;padding:12px 20px;border-radius:8px;">Entrar</a></td></tr>
+    <tr><td style="font-size:12px;color:#71717a;">Se você não pediu este email, pode ignorá-lo com segurança.</td></tr>
+  </table>
+</body>`,
+  };
+}
+
 export const authConfig = {
   adapter: PrismaAdapter(prisma as unknown as AdapterPrismaClient),
   providers: [
     smtpServer
-      ? Nodemailer({ server: smtpServer, from: emailFrom })
+      ? Nodemailer({
+          server: smtpServer,
+          from: emailFrom,
+          async sendVerificationRequest({ identifier, url, provider }) {
+            const { createTransport } = await import("nodemailer");
+            const { host } = new URL(url);
+            const content = magicLinkEmail(url, host);
+            await createTransport(provider.server).sendMail({
+              to: identifier,
+              from: provider.from,
+              ...content,
+            });
+          },
+        })
       : Resend({
           apiKey: process.env.RESEND_API_KEY ?? "missing-resend-api-key",
           from: emailFrom,
+          async sendVerificationRequest({ identifier, url, provider }) {
+            const { host } = new URL(url);
+            const response = await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${provider.apiKey}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                from: provider.from,
+                to: identifier,
+                ...magicLinkEmail(url, host),
+              }),
+            });
+            if (!response.ok) {
+              throw new Error(
+                "Resend error: " + JSON.stringify(await response.json())
+              );
+            }
+          },
         }),
   ],
   callbacks: {

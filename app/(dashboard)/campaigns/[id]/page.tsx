@@ -12,6 +12,11 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import CampaignPreview, { type PreviewTab } from "@/components/campaign-preview";
+import {
+  DEFAULT_FOLLOW_BUTTON_LABEL,
+  DEFAULT_FOLLOW_PROMPT_MESSAGE,
+  DEFAULT_LINK_BUTTON_LABEL,
+} from "@/lib/messages/defaults";
 
 interface Campaign {
   id: string;
@@ -131,12 +136,12 @@ export default function CampaignDetailPage() {
   if (notFound || !campaign) {
     return (
       <div className="panel rounded p-8 text-center">
-        <p className="text-sm text-muted">Campaign not found.</p>
+        <p className="text-sm text-muted">Campanha não encontrada.</p>
         <button
           onClick={() => router.push("/campaigns")}
           className="mt-4 rounded border border-border px-4 py-2 text-sm text-muted hover:text-foreground"
         >
-          Back to campaigns
+          Voltar para campanhas
         </button>
       </div>
     );
@@ -152,19 +157,19 @@ export default function CampaignDetailPage() {
   const hasSecondLink = Boolean(campaign.trackedLinks?.[1]?.destinationUrl);
 
   const trigger = campaign.matchAnyPost
-    ? "Any post or reel"
+    ? "Qualquer post ou reel"
     : campaign.pendingNextReel
-      ? "Your next reel"
-      : "A specific post or reel";
+      ? "O seu próximo reel"
+      : "Um post ou reel específico";
   const matchText = campaign.matchAnyWord
-    ? "Any comment"
-    : campaign.keywords.join(", ") || "No keywords";
+    ? "Qualquer comentário"
+    : campaign.keywords.join(", ") || "Sem palavras-chave";
 
   const metrics = [
-    { label: "Sends", value: campaign.analytics.sent },
-    { label: "Clicks", value: campaign.analytics.clicks },
-    { label: "CTR", value: `${campaign.analytics.ctr}%` },
-    { label: "Failed", value: campaign.analytics.failed },
+    { label: "Envios", value: campaign.analytics.sent },
+    { label: "Cliques", value: campaign.analytics.clicks },
+    { label: "Taxa de cliques", value: `${campaign.analytics.ctr}%` },
+    { label: "Falhas", value: campaign.analytics.failed },
   ];
 
   return (
@@ -176,7 +181,7 @@ export default function CampaignDetailPage() {
             href="/campaigns"
             className="text-sm text-muted hover:text-foreground"
           >
-            &larr; Campaigns
+            &larr; Campanhas
           </Link>
         </div>
         <div className="flex items-center gap-2">
@@ -188,11 +193,11 @@ export default function CampaignDetailPage() {
                 : "bg-zinc-500/10 text-muted"
             }`}
           >
-            {campaign.isActive ? "LIVE" : "Paused"}
+            {campaign.isActive ? "ATIVA" : "Pausada"}
           </span>
         </div>
 
-        <Summary title="When someone comments on">
+        <Summary title="Quando alguém comentar em">
           <div className="flex items-center gap-3">
             {postThumb ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -203,24 +208,24 @@ export default function CampaignDetailPage() {
               />
             ) : (
               <div className="grid h-14 w-14 place-items-center rounded bg-surface-hover text-[10px] text-muted">
-                {campaign.matchAnyPost || campaign.pendingNextReel ? "Any" : "Post"}
+                {campaign.matchAnyPost || campaign.pendingNextReel ? "Todos" : "Post"}
               </div>
             )}
             <span className="text-sm text-foreground">{trigger}</span>
           </div>
         </Summary>
 
-        <Summary title="And this comment has">
+        <Summary title="E o comentário tiver">
           <FieldBox>{matchText}</FieldBox>
           {campaign.dmTriggerEnabled && (
             <p className="text-xs text-muted">
-              Also replies when someone DMs{" "}
-              {campaign.matchAnyWord ? "anything" : "these words"}.
+              Também responde quando alguém mandar DM com{" "}
+              {campaign.matchAnyWord ? "qualquer texto" : "estas palavras"}.
             </p>
           )}
           {publicReplies.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-xs text-muted">Public reply under the post</p>
+              <p className="text-xs text-muted">Resposta pública no post</p>
               {publicReplies.map((m, i) => (
                 <FieldBox key={i}>{m}</FieldBox>
               ))}
@@ -229,38 +234,38 @@ export default function CampaignDetailPage() {
         </Summary>
 
         {campaign.openingDmEnabled && (
-          <Summary title="They will get an opening DM">
-            <FieldBox>{campaign.openingDmMessage || "Opening message"}</FieldBox>
-            <FieldBox>{campaign.openingDmButtonLabel || "Button"}</FieldBox>
+          <Summary title="A pessoa recebe uma DM de abertura">
+            <FieldBox>{campaign.openingDmMessage || "Mensagem de abertura"}</FieldBox>
+            <FieldBox>{campaign.openingDmButtonLabel || "Botão"}</FieldBox>
           </Summary>
         )}
 
         {campaign.requireFollow && (
-          <Summary title="They must follow first">
+          <Summary title="A pessoa precisa seguir antes">
             <FieldBox>
               {campaign.followPromptMessage ||
-                "quick favor before i send your link. i don't make any money from this, it's free. if you want to support me, just don't unfollow after, and star the repo on github if it helps you. tap the button once you're following and i'll send it over"}
+                DEFAULT_FOLLOW_PROMPT_MESSAGE}
             </FieldBox>
             <FieldBox>
-              {campaign.followPromptButtonLabel || "i'm following"}
+              {campaign.followPromptButtonLabel || DEFAULT_FOLLOW_BUTTON_LABEL}
             </FieldBox>
           </Summary>
         )}
 
-        <Summary title="And then, they will get a DM">
+        <Summary title="Depois, a pessoa recebe esta DM">
           <FieldBox>{campaign.dmMessage}</FieldBox>
           {hasLink && (
-            <FieldBox>{campaign.linkButtonLabel || "Open link"}</FieldBox>
+            <FieldBox>{campaign.linkButtonLabel || DEFAULT_LINK_BUTTON_LABEL}</FieldBox>
           )}
           {hasSecondLink && (
             <FieldBox>
-              {campaign.trackedLinks?.[1]?.label || "Open link"}
+              {campaign.trackedLinks?.[1]?.label || DEFAULT_LINK_BUTTON_LABEL}
             </FieldBox>
           )}
         </Summary>
 
         {hasLink && (
-          <Summary title="The exact link sent">
+          <Summary title="Link enviado">
             {campaign.trackedLinks
               ?.filter((link) => link.destinationUrl)
               .map((link, i) => (
@@ -271,7 +276,7 @@ export default function CampaignDetailPage() {
                     </p>
                   </div>
                   <p className="text-xs text-muted">
-                    {link.label ? `${link.label} · ` : ""}redirects to{" "}
+                    {link.label ? `${link.label} · ` : ""}redireciona para{" "}
                     <span className="break-all">{link.destinationUrl}</span>
                   </p>
                 </div>
@@ -280,12 +285,12 @@ export default function CampaignDetailPage() {
         )}
 
         {campaign.followUpEnabled && campaign.followUpMessage && (
-          <Summary title="Then a follow-up message">
+          <Summary title="Em seguida, uma mensagem de acompanhamento">
             <FieldBox>{campaign.followUpMessage}</FieldBox>
             <p className="text-xs text-muted">
               {campaign.followUpDelayMinutes && campaign.followUpDelayMinutes > 0
-                ? `Sent ${campaign.followUpDelayMinutes} min after the link.`
-                : "Sent right after the link."}
+                ? `Enviada ${campaign.followUpDelayMinutes} min depois do link.`
+                : "Enviada logo depois do link."}
             </p>
           </Summary>
         )}
@@ -296,10 +301,10 @@ export default function CampaignDetailPage() {
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-3 border-b border-border pb-3">
           <div className="flex gap-4">
             <TabButton active={tab === "insights"} onClick={() => setTab("insights")}>
-              Insights
+              Resultados
             </TabButton>
             <TabButton active={tab === "preview"} onClick={() => setTab("preview")}>
-              Preview
+              Prévia
             </TabButton>
           </div>
           <div className="flex items-center gap-2">
@@ -307,7 +312,7 @@ export default function CampaignDetailPage() {
               href={`/campaigns/${campaign.id}/edit`}
               className="rounded border border-border px-3 py-1.5 text-sm text-muted hover:text-foreground"
             >
-              Edit
+              Editar
             </Link>
             <button
               onClick={toggleActive}
@@ -318,7 +323,7 @@ export default function CampaignDetailPage() {
                   : "border-success/30 text-success hover:bg-success/10"
               }`}
             >
-              {campaign.isActive ? "Stop" : "Resume"}
+              {campaign.isActive ? "Pausar" : "Retomar"}
             </button>
           </div>
         </div>
@@ -345,7 +350,7 @@ export default function CampaignDetailPage() {
             avatarUrl={avatarUrl}
             postThumb={postThumb}
             caption=""
-            sampleComment={campaign.matchAnyWord ? "nice!" : campaign.keywords[0] ?? "LINK"}
+            sampleComment={campaign.matchAnyWord ? "adorei!" : campaign.keywords[0] ?? "LINK"}
             dmTriggerEnabled={campaign.dmTriggerEnabled}
             publicReplyEnabled={campaign.publicReplyEnabled}
             publicReplyMessage={publicReplies[0] ?? ""}
@@ -354,19 +359,19 @@ export default function CampaignDetailPage() {
             openingDmButtonLabel={campaign.openingDmButtonLabel ?? ""}
             revealMessage={campaign.dmMessage}
             hasLink={hasLink}
-            linkButtonLabel={campaign.linkButtonLabel ?? "Open link"}
+            linkButtonLabel={campaign.linkButtonLabel ?? DEFAULT_LINK_BUTTON_LABEL}
             linkUrl={
               campaign.trackedLinks?.[0]?.trackedUrl ??
               campaign.trackedLinks?.[0]?.destinationUrl
             }
             hasSecondLink={hasSecondLink}
             secondLinkButtonLabel={
-              campaign.trackedLinks?.[1]?.label ?? "Open link"
+              campaign.trackedLinks?.[1]?.label ?? DEFAULT_LINK_BUTTON_LABEL
             }
             requireFollow={campaign.requireFollow}
             followPromptMessage={campaign.followPromptMessage ?? ""}
             followPromptButtonLabel={
-              campaign.followPromptButtonLabel ?? "i'm following"
+              campaign.followPromptButtonLabel ?? DEFAULT_FOLLOW_BUTTON_LABEL
             }
             followUpEnabled={campaign.followUpEnabled ?? false}
             followUpMessage={campaign.followUpMessage ?? ""}

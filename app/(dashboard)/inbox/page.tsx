@@ -31,8 +31,8 @@ function formatTime(iso: string | null): string {
   const now = new Date();
   const sameDay = d.toDateString() === now.toDateString();
   return sameDay
-    ? d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })
-    : d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    ? d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+    : d.toLocaleDateString("pt-BR", { month: "short", day: "numeric" });
 }
 
 export default function InboxPage() {
@@ -105,10 +105,10 @@ export default function InboxPage() {
           writeCache(convCacheKey(selectedAccountId), data.data.conversations);
           setConvError(null);
         } else if (!silent) {
-          setConvError(data.error ?? "Failed to load conversations");
+          setConvError(data.error ?? "Não foi possível carregar as conversas");
         }
       } catch {
-        if (!silent) setConvError("Failed to load conversations");
+        if (!silent) setConvError("Não foi possível carregar as conversas");
       } finally {
         conversationRequests.current.delete(selectedAccountId);
         if (!silent) setConvLoading(false);
@@ -241,12 +241,12 @@ export default function InboxPage() {
         // Roll the optimistic message back and restore the draft so it's not lost.
         setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
         setDraft(text);
-        setSendError(data.error ?? "Failed to send message");
+        setSendError(data.error ?? "Não foi possível enviar a mensagem");
       }
     } catch {
       setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
       setDraft(text);
-      setSendError("Failed to send message");
+      setSendError("Não foi possível enviar a mensagem");
     } finally {
       setSending(false);
     }
@@ -262,7 +262,7 @@ export default function InboxPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-end justify-between gap-4">
-        <h1 className="text-lg font-semibold text-foreground">Inbox</h1>
+        <h1 className="text-lg font-semibold text-foreground">Mensagens</h1>
         {accounts.length > 1 && (
           <AccountSelect
             accounts={accounts}
@@ -282,15 +282,15 @@ export default function InboxPage() {
           }`}
         >
           <div className="shrink-0 border-b border-border px-4 py-3 text-sm font-semibold text-foreground">
-            Conversations
+            Conversas
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto">
             {convLoading ? (
-              <p className="px-4 py-6 text-sm text-muted">Loading…</p>
+              <p className="px-4 py-6 text-sm text-muted">Carregando…</p>
             ) : convError ? (
               <p className="px-4 py-6 text-sm text-error">{convError}</p>
             ) : conversations.length === 0 ? (
-              <p className="px-4 py-6 text-sm text-muted">No conversations yet.</p>
+              <p className="px-4 py-6 text-sm text-muted">Nenhuma conversa ainda.</p>
             ) : (
               conversations.map((c) => {
                 const isActive = c.id === activeId;
@@ -305,18 +305,18 @@ export default function InboxPage() {
                   >
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="truncate text-sm font-medium text-foreground">
-                        {c.detailsUnavailable ? "Details unavailable" : `@${c.contact.username ?? "unknown"}`}
+                        {c.detailsUnavailable ? "Detalhes indisponíveis" : `@${c.contact.username ?? "desconhecido"}`}
                       </span>
                       <span className="shrink-0 text-[11px] text-zinc-500">
                         {formatTime(c.updatedTime)}
                       </span>
                     </div>
                     {c.detailsUnavailable && (
-                      <p className="mt-0.5 text-xs text-muted">Instagram could not load this conversation.</p>
+                      <p className="mt-0.5 text-xs text-muted">O Instagram não conseguiu carregar esta conversa.</p>
                     )}
                     {c.lastMessage && (
                       <p className="mt-0.5 truncate text-xs text-muted">
-                        {c.lastMessage.fromMe ? "You: " : ""}
+                        {c.lastMessage.fromMe ? "Você: " : ""}
                         {c.lastMessage.text || "(no text)"}
                       </p>
                     )}
@@ -334,7 +334,7 @@ export default function InboxPage() {
         >
           {!active ? (
             <div className="flex flex-1 items-center justify-center p-6 text-sm text-muted">
-              Select a conversation to read and reply.
+              Selecione uma conversa para ler e responder.
             </div>
           ) : (
             <>
@@ -343,24 +343,24 @@ export default function InboxPage() {
                   type="button"
                   onClick={() => setActiveId(null)}
                   className="-ml-1 rounded px-2 py-1 text-muted hover:text-foreground sm:hidden"
-                  aria-label="Back to conversations"
+                  aria-label="Voltar para as conversas"
                 >
-                  Back
+                  Voltar
                 </button>
                 <span className="truncate">
-                  {active.detailsUnavailable ? "Details unavailable" : `@${active.contact.username ?? "unknown"}`}
+                  {active.detailsUnavailable ? "Detalhes indisponíveis" : `@${active.contact.username ?? "desconhecido"}`}
                 </span>
               </div>
 
               <div ref={scrollRef} className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
                 {active.detailsUnavailable ? (
                   <p role="status" className="text-sm text-muted">
-                    Instagram could not load the details of this conversation. Other conversations are still available. You can check this chat in Instagram.
+                    O Instagram não conseguiu carregar os detalhes desta conversa. As outras conversas continuam disponíveis. Você pode ver este chat direto no Instagram.
                   </p>
                 ) : threadLoading && messages.length === 0 ? (
-                  <p className="text-sm text-muted">Loading…</p>
+                  <p className="text-sm text-muted">Carregando…</p>
                 ) : messages.length === 0 ? (
-                  <p className="text-sm text-muted">No messages.</p>
+                  <p className="text-sm text-muted">Nenhuma mensagem.</p>
                 ) : (
                   messages.map((m) => (
                     <div
@@ -399,7 +399,7 @@ export default function InboxPage() {
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={handleKeyDown}
                     rows={1}
-                    placeholder="Write a reply…  (Enter to send, Shift+Enter for a new line)"
+                    placeholder="Escreva uma resposta…  (Enter para enviar, Shift+Enter para nova linha)"
                     className="max-h-32 min-h-[40px] flex-1 resize-none rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-zinc-500 focus:border-accent/40 focus:outline-none"
                   />
                   <button
@@ -408,7 +408,7 @@ export default function InboxPage() {
                     disabled={sending || !draft.trim() || !active.contact.id || active.detailsUnavailable}
                     className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50"
                   >
-                    {sending ? "Sending…" : "Send"}
+                    {sending ? "Enviando…" : "Enviar"}
                   </button>
                 </div>
               </div>

@@ -4,6 +4,11 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
 import { ensureWorkspaceForUser } from "@/lib/workspace";
 
+export const metadata = {
+  title: "OpenReply - Painel",
+  description: "Automação de comentário para DM no Instagram.",
+};
+
 export default async function DashboardLayout({
   children,
 }: {

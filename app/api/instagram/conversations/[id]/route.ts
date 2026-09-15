@@ -26,7 +26,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
   const workspaceId = await getCurrentWorkspaceId();
   if (!workspaceId) {
     return NextResponse.json(
-      { success: false, error: "Unauthorized" },
+      { success: false, error: "Não autorizado" },
       { status: 401 }
     );
   }
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
   );
   if (!account) {
     return NextResponse.json(
-      { success: false, error: "Instagram account not connected." },
+      { success: false, error: "Conta do Instagram não conectada." },
       { status: 400 }
     );
   }
